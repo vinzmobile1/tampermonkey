@@ -1,0 +1,254 @@
+// ==UserScript==
+// @name         Shopee Store Scraper v3 (Cache & Viewer)
+// @namespace    http://tampermonkey.net/
+// @version      3.0
+// @description  Scrape data, simpan di Local Storage, dan tampilkan di tab baru dengan tabel interaktif.
+// @author       Gemini AI & User (Original Logic by Naufal Abiyyu)
+// @match        https://shopee.co.id/*
+// @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
+// @require      https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // --- VARIABEL GLOBAL & STATE ---
+    let interceptedShopData = null;
+    let infoPanel = null;
+    let refreshButton = null;
+    let showStoredButton = null;
+
+    // --- INTERCEPTOR (TIDAK BERUBAH) ---
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        const url = args[0];
+        const requestUrl = (typeof url === 'string') ? url : url.url;
+        const response = await originalFetch(...args);
+        if (requestUrl.includes('/api/v4/shop/get_shop_base')) {
+            const clonedResponse = response.clone();
+            try {
+                const json = await clonedResponse.json();
+                if (json.data && json.data.shopid) {
+                    interceptedShopData = json.data;
+                    console.log('[INTERCEPTOR] Data toko berhasil ditangkap:', interceptedShopData);
+                    if (infoPanel) {
+                        updateInfoPanel(interceptedShopData);
+                        updateButtonStates(interceptedShopData.shopid); // PENTING: Perbarui status tombol saat data toko didapat
+                    }
+                }
+            } catch (e) { console.error('[INTERCEPTOR] Gagal parse JSON:', e); }
+        }
+        return response;
+    };
+
+    // --- FUNGSI MENAMPILKAN HASIL (TIDAK BERUBAH) ---
+    function displayResultsInNewTab(headers, rows, shopData) {
+        // ... (Fungsi ini sama persis dengan versi sebelumnya, tidak perlu diubah)
+        const shopName = shopData.name;
+        const totalProducts = rows.length;
+        const newTab = window.open();
+        if (!newTab) { alert("Gagal membuka tab baru. Mohon izinkan pop-up untuk situs ini."); return; }
+        const headersJson = JSON.stringify(headers);
+        const rowsJson = JSON.stringify(rows);
+        const shopDataJson = JSON.stringify(shopData);
+        const htmlContent = `
+            <!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>Hasil Scrape - ${shopName}</title><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"><\/script><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background-color:#f4f4f4;color:#333}.container{max-width:95%;margin:20px auto;padding:20px;background-color:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.1);border-radius:8px}h1{color:#ee4d2d}.header-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap}#downloadBtn{background-color:#ee4d2d;color:white;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;font-size:16px;font-weight:bold;transition:background-color .2s}#downloadBtn:hover{background-color:#d73110}.table-container{max-height:80vh;overflow:auto;border:1px solid #ddd}table{width:100%;border-collapse:collapse}th,td{padding:12px 15px;border:1px solid #ddd;text-align:left;white-space:nowrap}thead th{background-color:#f2f2f2;font-weight:bold;position:sticky;top:0;z-index:10;cursor:pointer;user-select:none}thead th:hover{background-color:#e0e0e0}thead th span{color:#999;font-weight:normal}tbody tr:nth-child(even){background-color:#f9f9f9}tbody tr:hover{background-color:#f1f1f1}</style></head><body><div class="container"><div class="header-controls"><div><h1>Extracted Products ${shopName}</h1><p>Total Produk : <strong>${totalProducts}</strong></p></div><button id="downloadBtn">Download Data (XLSX)</button></div><div class="table-container"><table id="resultTable"><thead><tr>${headers.map(header=>`<th>${header} <span></span></th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(cell=>`<td>${String(cell).replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">")}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div><script>
+            const headers=${headersJson};const rows=${rowsJson};const shopData=${shopDataJson};document.getElementById('downloadBtn').addEventListener('click',()=>{console.log("Membuat file Excel...");const e=String(shopData.name).replace(/[\\\\/*?:"<>|]/g,"_").trim().replace(/\\s+/g,"_"),t=new Date,o=\`\${t.getFullYear()}\${String(t.getMonth()+1).padStart(2,"0")}\${String(t.getDate()).padStart(2,"0")}\`,a=\`\${o}_\${e}.xlsx\`,n=XLSX.utils.book_new(),s=[headers,...rows],d=XLSX.utils.aoa_to_sheet(s);d["!cols"]=[{wch:60},{wch:15},{wch:15},{wch:15},{wch:70},{wch:20},{wch:10},{wch:15},{wch:15},{wch:12},{wch:10},{wch:15},{wch:20}],XLSX.utils.book_append_sheet(n,d,"Produk"),XLSX.writeFile(n,a),console.log(\`File '\${a}' siap diunduh.\`)});function sortTable(e,t){const o=document.getElementById("resultTable"),a=o.tBodies[0],n=Array.from(a.rows),s="asc"!==t.getAttribute("data-sort-dir");o.querySelectorAll("thead th").forEach(e=>{e.removeAttribute("data-sort-dir")}),t.setAttribute("data-sort-dir",s?"asc":"desc"),o.querySelectorAll("thead th span").forEach(e=>{e.textContent=""}),t.querySelector("span").textContent=s?" ▲":" ▼",n.sort((t,o)=>{const a=t.cells[e].innerText.trim(),n=o.cells[e].innerText.trim(),d=parseFloat(a.replace(/,/g,"")),r=parseFloat(n.replace(/,/g,""));let c=0;return c=isNaN(d)||isNaN(r)?a.localeCompare(n,"id-ID",{numeric:!0}):d-r,s?c:-c}),a.innerHTML="",n.forEach(e=>{a.appendChild(e)})}document.querySelectorAll("#resultTable thead th").forEach((e,t)=>{e.addEventListener("click",()=>sortTable(t,e))});
+            <\/script></body></html>`;
+        newTab.document.open();newTab.document.write(htmlContent);newTab.document.close();
+    }
+
+    // --- FUNGSI BARU: MENAMPILKAN DATA TERSIMPAN ---
+    function showStoredData() {
+        const shop_id = interceptedShopData?.shopid;
+        if (!shop_id) {
+            alert("Tidak dapat menemukan Shop ID. Coba refresh halaman.");
+            return;
+        }
+
+        const storageKey = `shopeeScraperData_${shop_id}`;
+        try {
+            const storedDataString = localStorage.getItem(storageKey);
+            if (storedDataString) {
+                console.log("[CACHE] Memuat data dari Local Storage...");
+                const storedData = JSON.parse(storedDataString);
+                displayResultsInNewTab(storedData.headers, storedData.rows, storedData.shopData);
+            } else {
+                alert("Tidak ada data tersimpan untuk toko ini.");
+            }
+        } catch(e) {
+            console.error("[CACHE] Gagal memuat atau parse data dari Local Storage:", e);
+            alert("Terjadi kesalahan saat memuat data tersimpan. Data mungkin rusak.");
+            // Opsi: Hapus data yang rusak
+            // localStorage.removeItem(storageKey);
+            // updateButtonStates(shop_id);
+        }
+    }
+
+
+    // --- FUNGSI UTAMA (SEKARANG MENJADI 'REFRESH & SCRAPE') ---
+    async function startScraping() {
+        const shop_id = interceptedShopData?.shopid;
+        if (!shop_id) {
+            alert('Gagal mendeteksi Shop ID. Pastikan Anda berada di halaman utama toko Shopee dan coba refresh halaman.');
+            return;
+        }
+
+        const limit = 30;
+        const delay = 1500; // Delay bisa sedikit dipercepat jika koneksi baik
+
+        refreshButton.disabled = true;
+        showStoredButton.disabled = true;
+        refreshButton.innerText = 'Memulai...';
+        console.log(`[SCRAPER] Memulai proses scraping untuk toko dengan ID: ${shop_id}`);
+
+        // --- Fungsi helper internal (tidak berubah) ---
+        function getCookie(name) { /* ... */ const value = `; ${document.cookie}`; const parts = value.split(`; ${name}=`); if (parts.length === 2) return parts.pop().split(';').shift(); return ''; }
+        function createShopeeUrl(name, shopid, itemid) { /* ... */ if (!name || !shopid || !itemid || name === 'N/A') return 'N/A'; let nameSlug = String(name).trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').substring(0, 70); return `https://shopee.co.id/${nameSlug}-i.${shopid}.${itemid}`; }
+        function extractFields(item) { /* ... */ const name = item?.name ?? 'N/A'; const price = typeof item?.price === 'number' ? parseFloat((item.price / 100000).toFixed(2)) : 'N/A'; const sold_30_days = item?.sold ?? item?.monthly_sold ?? 'N/A'; const historical_sold = item?.historical_sold ?? 'N/A'; const shop_name = item?.shop_name ?? 'N/A'; let item_status = item?.item_status ?? (item?.stock === 0 ? 'sold_out' : 'normal'); const status = item_status === 'normal' ? 'Ready' : (item_status === 'sold_out' ? 'Sold Out' : item_status); const itemid = String(item?.itemid ?? 'N/A'); const shopid = String(item?.shopid ?? 'N/A'); const ctime = item?.ctime; const upload_date = typeof ctime === 'number' ? new Date(ctime * 1000).toISOString().split('T')[0] : 'N/A'; const item_rating = item?.item_rating; const rating_count = item_rating?.rating_count?.[0] ?? 0; const rating_star_raw = item_rating?.rating_star ?? 0; const rating_star = Number(rating_star_raw).toFixed(1); const shop_location = item?.shop_location ?? 'N/A'; const url = createShopeeUrl(name, shopid, itemid); return [ name, price, sold_30_days, historical_sold, url, shop_name, status, itemid, shopid, upload_date, rating_star, rating_count, shop_location ]; }
+        async function fetchReadyItems(offset) { /* ... */ const url = 'https://shopee.co.id/api/v4/shop/rcmd_items'; const body = JSON.stringify({ bundle: "shop_page_category_tab_main", shop_id, limit, offset, upstream: "", sort_type: 13, item_card_use_scene: "category_product_list_topsales", is_insert_new_arrival: false }); const response = await fetch(url, { method: 'POST', headers: { 'accept': 'application/json', 'content-type': 'application/json', 'x-api-source': 'pc', 'x-csrftoken': getCookie('csrftoken'), 'x-requested-with': 'XMLHttpRequest', 'x-shopee-language': 'id' }, credentials: 'include', body }); if (!response.ok) throw new Error('Request (Ready) Gagal: ' + response.status); return response.json(); }
+        async function fetchSoldItems(offset) { /* ... */ const url = `https://shopee.co.id/api/v4/shop/search_items?filter_sold_out=1&item_card_use_scene=search_items_popular&limit=${limit}&offset=${offset}&order=desc&shopid=${shop_id}&sort_by=pop&use_case=4`; const response = await fetch(url, { method: 'GET', headers: { 'x-csrftoken': getCookie('csrftoken') }, credentials: 'include' }); if (!response.ok) throw new Error('Request (Sold Out) Gagal: ' + response.status); return response.json(); }
+
+        const allItems = [];
+        let offset = 0, hasMore = true;
+
+        // Proses scraping (Tahap 1 & 2)
+        try {
+            while (hasMore) { /* Tahap 1: Ready */ refreshButton.innerText = `Scraping Ready... (${allItems.length})`; const data = await fetchReadyItems(offset); const items = data?.data?.items || []; if (items.length > 0) { allItems.push(...items); offset += limit; } if (data?.data?.no_more || items.length < limit) { hasMore = false; } await new Promise(r => setTimeout(r, delay)); }
+            offset = 0; hasMore = true;
+            while (hasMore) { /* Tahap 2: Sold Out */ refreshButton.innerText = `Scraping Sold... (${allItems.length})`; const data = await fetchSoldItems(offset); const items = data.items || []; if (items.length > 0) { allItems.push(...items.map(item => item.item_basic)); offset += limit; } if (items.length < limit) { hasMore = false; } await new Promise(r => setTimeout(r, delay)); }
+        } catch (error) {
+            console.error('[SCRAPER] Proses scraping terhenti karena error:', error);
+            alert(`Scraping gagal: ${error.message}. Cek console untuk detail.`);
+            refreshButton.innerText = 'Gagal! Coba Lagi';
+            refreshButton.disabled = false;
+            updateButtonStates(shop_id);
+            return;
+        }
+
+        console.log('[SCRAPER] PROSES SCRAPING SELESAI. TOTAL PRODUK:', allItems.length);
+
+        if (allItems.length > 0) {
+            refreshButton.innerText = 'Menyimpan & Membuka...';
+            const headers = [ "Item Name", "Price (IDR)", "Sold (30 Days)", "Sold (Total)", "Shopee URL", "Shop Name", "Status", "ItemID", "ShopID", "Upload Date", "Rating", "Rating Count", "Shop Location" ];
+            const rows = allItems.map(item => extractFields(item));
+            const shopData = { name: interceptedShopData?.name || rows[0]?.[5] || `shop_${shop_id}`, shop_id: shop_id };
+            const dataToStore = { headers, rows, shopData };
+            const storageKey = `shopeeScraperData_${shop_id}`;
+
+            // --- BAGIAN BARU: MENYIMPAN KE LOCALSTORAGE ---
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(dataToStore));
+                console.log(`[CACHE] Data untuk shop ${shop_id} berhasil disimpan di Local Storage.`);
+                updateButtonStates(shop_id); // Update status tombol setelah menyimpan
+            } catch (e) {
+                console.error("[CACHE] Gagal menyimpan ke Local Storage:", e);
+                alert("Gagal menyimpan data ke penyimpanan lokal. Mungkin penyimpanan penuh.");
+            }
+
+            displayResultsInNewTab(headers, rows, shopData);
+            refreshButton.innerText = 'SELESAI!';
+        } else {
+            console.log('[SCRAPER] Tidak ada data produk yang ditemukan.');
+            refreshButton.innerText = 'Gagal (0 Produk)';
+        }
+
+        setTimeout(() => {
+            refreshButton.disabled = false;
+            refreshButton.innerText = 'Refresh & Scrape Data';
+            updateButtonStates(shop_id);
+        }, 5000);
+    }
+
+    // --- PEMBUATAN UI & INISIALISASI ---
+    function createScraperUI() {
+        // Kontainer untuk tombol-tombol
+        const controlContainer = document.createElement('div');
+        Object.assign(controlContainer.style, { position: 'fixed', bottom: '20px', left: '20px', zIndex: '9999', display: 'flex', flexDirection: 'column', gap: '10px' });
+
+        // Tombol 1: Refresh & Scrape
+        refreshButton = document.createElement('button');
+        refreshButton.innerText = 'Refresh & Scrape Data';
+        Object.assign(refreshButton.style, { padding: '10px 20px', backgroundColor: '#ee4d2d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' });
+        refreshButton.addEventListener('click', startScraping);
+
+        // Tombol 2: Tampilkan Data Tersimpan
+        showStoredButton = document.createElement('button');
+        showStoredButton.innerText = 'Tampilkan Data Tersimpan';
+        Object.assign(showStoredButton.style, { padding: '8px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', transition: 'opacity 0.3s, background-color 0.3s' });
+        showStoredButton.addEventListener('click', showStoredData);
+
+        controlContainer.appendChild(refreshButton);
+        controlContainer.appendChild(showStoredButton);
+        document.body.appendChild(controlContainer);
+
+        // Panel Info (tidak berubah)
+        infoPanel = document.createElement('div');
+        infoPanel.innerHTML = '<i>Menunggu data toko...</i>';
+        Object.assign(infoPanel.style, { position: 'fixed', bottom: '135px', left: '20px', zIndex: '9998', padding: '10px', backgroundColor: '#fff', color: '#333', border: '1px solid #ccc', borderRadius: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', fontSize: '12px', fontFamily: 'Arial, sans-serif', lineHeight: '1.5' });
+        document.body.appendChild(infoPanel);
+
+        // Inisialisasi status tombol
+        updateButtonStates(interceptedShopData?.shopid);
+    }
+
+    function updateInfoPanel(data) {
+        if (!data || !infoPanel) return;
+        const rating = Number(data.rating_star).toFixed(2);
+        infoPanel.innerHTML = `<strong style="color: #ee4d2d; font-size: 14px;">${data.name}</strong><br><span><strong>Followers:</strong> ${data.follower_count.toLocaleString('id-ID')}</span><br><span><strong>Jumlah Produk:</strong> ${data.item_count}</span><br><span><strong>Rating:</strong> ${rating} ★</span><br><span style="font-size: 10px; color: #888;">Shop ID: ${data.shopid}</span>`;
+    }
+
+    // --- FUNGSI BARU: MENGATUR STATUS TOMBOL BERDASARKAN CACHE ---
+    function updateButtonStates(shop_id) {
+        if (!showStoredButton) return; // Jangan lakukan apa-apa jika tombol belum dibuat
+        if (!shop_id) {
+            showStoredButton.disabled = true;
+            showStoredButton.style.opacity = '0.5';
+            showStoredButton.style.cursor = 'not-allowed';
+            showStoredButton.innerText = 'Data Tersimpan (N/A)';
+            return;
+        }
+
+        const storageKey = `shopeeScraperData_${shop_id}`;
+        const storedDataString = localStorage.getItem(storageKey);
+
+        if (storedDataString) {
+            try {
+                const total = JSON.parse(storedDataString).rows.length;
+                showStoredButton.disabled = false;
+                showStoredButton.style.opacity = '1';
+                showStoredButton.style.cursor = 'pointer';
+                showStoredButton.innerText = `Tampilkan Data (${total} Produk)`;
+                showStoredButton.style.backgroundColor = '#28a745'; // Warna hijau menandakan data siap
+            } catch(e) {
+                 // Jika data rusak, anggap tidak ada
+                 showStoredButton.disabled = true;
+                 showStoredButton.style.opacity = '0.5';
+                 showStoredButton.style.cursor = 'not-allowed';
+                 showStoredButton.innerText = 'Data Tersimpan (Rusak)';
+                 showStoredButton.style.backgroundColor = '#dc3545'; // Warna merah menandakan error
+            }
+        } else {
+            showStoredButton.disabled = true;
+            showStoredButton.style.opacity = '0.5';
+            showStoredButton.style.cursor = 'not-allowed';
+            showStoredButton.innerText = 'Belum Ada Data Tersimpan';
+            showStoredButton.style.backgroundColor = '#6c757d'; // Warna abu-abu
+        }
+    }
+
+    // --- LOGIKA UTAMA SCRIPT (INISIALISASI) ---
+    const checkPageInterval = setInterval(() => {
+        const shopIdFound = window.__INITIAL_STATE__?.shopPage?.shopId || interceptedShopData?.shopid;
+        if (shopIdFound) {
+            clearInterval(checkPageInterval);
+            createScraperUI();
+            if (interceptedShopData) {
+                updateInfoPanel(interceptedShopData);
+                updateButtonStates(interceptedShopData.shopid);
+            }
+        }
+    }, 500);
+
+})();
