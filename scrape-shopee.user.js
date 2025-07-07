@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      8.8
+// @version      8.7.0
 // @description  Coba update lagi
 // @author       Naufal Abiyyu & Gemini
 // @match        https://shopee.co.id/*
@@ -14,8 +14,8 @@
 // @grant        unsafeWindow
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
-// @updateURL    https://github.com/vinzmobile1/tampermonkey/raw/main/scrape-shopee.user.js
-// @downloadURL  https://github.com/vinzmobile1/tampermonkey/raw/main/scrape-shopee.user.js
+// @updateURL    https://raw.githubusercontent.com/vinzmobile1/tampermonkey/main/shopee-scraper.user.js
+// @downloadURL  https://raw.githubusercontent.com/vinzmobile1/tampermonkey/main/shopee-scraper.user.js
 // ==/UserScript==
 
 (function() {
