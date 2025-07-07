@@ -2,7 +2,7 @@
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
 // @version      9.0
-// @description  update kode test
+// @description  update kode test lama
 // @author       Naufal Abiyyu & Gemini
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
