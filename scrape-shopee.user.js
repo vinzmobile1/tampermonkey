@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      8.7.1
-// @description  Update ke versi 8.7.1
-// @author       By Naufal Abiyyu & Gemini AI
+// @version      8.7.2
+// @description  Update ke versi 8.7.2
+// @author       By Naufal Abiyyu & Gemini AI Studio
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
 // @require      https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js
@@ -22,7 +22,7 @@
     'use strict';
 
     // ===================================================================
-    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah) Logic
+    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah)
     // ===================================================================
 
     let interceptedShopData = null,
