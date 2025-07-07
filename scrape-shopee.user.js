@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      8.9
-// @description  Menambahkan indikator progress scrape secara live pada tombol tanpa mengubah alur kerja utama.
+// @version      9.0
+// @description  update kode test
 // @author       Naufal Abiyyu & Gemini
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
@@ -23,6 +23,7 @@
 
     // ===================================================================
     //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah) Logic By Naufal Abiyyu & Gemini AI
+    // let get some update here
     // ===================================================================
 
     let interceptedShopData = null,
