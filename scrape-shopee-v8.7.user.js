@@ -21,7 +21,7 @@
     'use strict';
 
     // ===================================================================
-    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah) kode by naufal abiyyu
+    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah) Logic By Naufal Abiyyu & Gemini AI
     // ===================================================================
 
     let interceptedShopData = null,
