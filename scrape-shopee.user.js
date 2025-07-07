@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Shopee Scraper Github
+// @name         Shopee Scraper
 // @namespace    https://shopee.co.id/
-// @version      8.7.8
-// @description  Update ke versi 8.7.8
+// @version      1.0.0
+// @description  Shopee scrape all in one
 // @author       By Naufal Abiyyu & Gemini AI Studio
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
@@ -21,9 +21,6 @@
 (function() {
     'use strict';
 
-    // ===================================================================
-    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah)
-    // ===================================================================
 
 (function (_0x53e29a, _0xce3727) {
     function _0xcbceb3(_0x54c4a5, _0x2fb71f, _0xc24f99, _0x20703e) {
