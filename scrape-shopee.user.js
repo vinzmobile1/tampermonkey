@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      9.0
+// @version      8.7
 // @description  update kode test lama
 // @author       Naufal Abiyyu & Gemini
 // @match        https://shopee.co.id/*
