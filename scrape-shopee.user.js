@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      8.7
-// @description  Coba update
+// @version      8.8
+// @description  Coba update lagi
 // @author       Naufal Abiyyu & Gemini
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
@@ -14,8 +14,8 @@
 // @grant        unsafeWindow
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
-// @updateURL    https://github.com/vinzmobile1/tampermonkey/raw/refs/heads/main/scrape-shopee.user.js
-// @downloadURL  https://github.com/vinzmobile1/tampermonkey/raw/refs/heads/main/scrape-shopee.user.js
+// @updateURL    https://github.com/vinzmobile1/tampermonkey/raw/main/scrape-shopee.user.js
+// @downloadURL  https://github.com/vinzmobile1/tampermonkey/raw/main/scrape-shopee.user.js
 // ==/UserScript==
 
 (function() {
