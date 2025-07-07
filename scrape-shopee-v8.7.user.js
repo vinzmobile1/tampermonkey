@@ -3,7 +3,7 @@
 // @namespace    https://shopee.co.id/
 // @version      8.7
 // @description  Menambahkan indikator progress scrape secara live pada tombol tanpa mengubah alur kerja utama.
-// @author       Gemini AI & User
+// @author       Naufal Abiyyu
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
 // @require      https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js
