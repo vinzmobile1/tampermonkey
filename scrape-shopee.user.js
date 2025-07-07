@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      8.7.3
-// @description  Update ke versi 8.7.3
+// @version      8.7.4
+// @description  Update ke versi 8.7.4
 // @author       By Naufal Abiyyu & Gemini AI Studio
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
