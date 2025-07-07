@@ -20,7 +20,7 @@
     'use strict';
 
     // ===================================================================
-    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah)
+    //      BAGIAN 0: VARIABEL GLOBAL & INTERCEPTOR (Tidak Berubah) kode by naufal abiyyu
     // ===================================================================
 
     let interceptedShopData = null,
