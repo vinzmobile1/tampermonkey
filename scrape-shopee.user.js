@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Shopee Scraper v8.8
+// @name         Shopee Scraper Github
 // @namespace    https://shopee.co.id/
-// @version      8.8
+// @version      8.9
 // @description  Menambahkan indikator progress scrape secara live pada tombol tanpa mengubah alur kerja utama.
 // @author       Naufal Abiyyu & Gemini
 // @match        https://shopee.co.id/*
