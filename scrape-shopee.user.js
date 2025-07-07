@@ -14,8 +14,8 @@
 // @grant        unsafeWindow
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
-// @updateURL    https://raw.githubusercontent.com/vinzmobile1/tampermonkey/main/shopee-scraper.user.js
-// @downloadURL  https://raw.githubusercontent.com/vinzmobile1/tampermonkey/main/shopee-scraper.user.js
+// @updateURL    https://github.com/vinzmobile1/tampermonkey/raw/refs/heads/main/scrape-shopee.user.js
+// @downloadURL  https://github.com/vinzmobile1/tampermonkey/raw/refs/heads/main/scrape-shopee.user.js
 // ==/UserScript==
 
 (function() {
