@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Shopee Scraper
 // @namespace    https://shopee.co.id/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Shopee scrape all in one
-// @author       By Naufal Abiyyu & AI
+// @author       logic by Naufal Abiyyu & User
 // @match        https://shopee.co.id/*
 // @icon         https://deo.shopeemobile.com/shopee/shopee-pcmall-live-sg/assets/ca5d12cb33c0998393a11b61962377b4.png
 // @require      https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js
