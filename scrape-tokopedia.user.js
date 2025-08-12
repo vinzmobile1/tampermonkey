@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Tokopedia Scraper
 // @namespace    https://www.tokopedia.com/
-// @version      6.3
+// @version      6.4
 // @description  Scrape produk dari toko atau kumpulkan dari pencarian (scroll), lalu ekspor ke Excel. Membutuhkan aktivasi.
-// @author       Gemini AI & User
+// @author       logic by Naufal Abiyyu & User
 // @match        https://www.tokopedia.com/*
 // @icon         https://ecs7.tokopedia.net/assets-unify/img/favicon.ico
 // @require      https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js
